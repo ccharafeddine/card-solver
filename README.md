@@ -2,14 +2,18 @@
 
 # Card Solver
 
-**Poker odds and perfect blackjack, with the game theory behind every choice explained in plain words.**
+**Poker odds, perfect blackjack and four more card games worked out exactly, with the game theory behind every choice explained in plain words.**
 
 **Live demo: [cards.chafic.me](https://cards.chafic.me)**
 
-Card Solver is one app with two tabs:
+Card Solver is one app with six tabs:
 
 - **Poker (Texas Hold'em):** pick your cards and the board and see your equity against random hands or a range you paint. It also shows your outs, pot odds and a fold/call/raise call with the EV of each choice.
 - **Blackjack:** set the table rules and see the exact expected value of every action for any hand against any dealer card. You also get a full strategy chart, a trainer that scores your choices, and optional Hi-Lo card counting.
+- **Kuhn poker:** the three-card poker game, solved exactly. Play against the perfect (Nash equilibrium) strategy, see the whole strategy, and see why bluffing works.
+- **Video poker (Jacks or Better):** the exact best hold for any five cards, the value of every hold, and the long-run return of each pay table.
+- **Gin rummy:** your best melds and deadwood, worked out exactly, plus discard, draw and knock advice (labelled as rules of thumb).
+- **Cribbage:** score any hand with every point explained, and find the best two cards to throw in the crib by exact average.
 
 It runs in the browser, installs as an offline app (PWA), and ships as a Windows desktop app (Tauri 2). It is the fourth app in the suite after Cube Solver, Big Cube and Sudoku Solver, and shares their four looks (Matte, Frutiger Aero, Neon, Neubrutalism), each in light and dark.
 
@@ -18,6 +22,10 @@ It runs in the browser, installs as an offline app (PWA), and ships as a Windows
 | Poker | Blackjack |
 |---|---|
 | ![Poker tab](docs/screenshot-poker.png) | ![Blackjack tab](docs/screenshot-blackjack.png) |
+| **Kuhn poker** | **Video poker** |
+| ![Kuhn poker tab](docs/screenshot-kuhn.png) | ![Video poker tab](docs/screenshot-vpoker.png) |
+| **Gin rummy** | **Cribbage** |
+| ![Gin rummy tab](docs/screenshot-gin.png) | ![Cribbage tab](docs/screenshot-cribbage.png) |
 
 ## Contents
 
@@ -41,8 +49,28 @@ It runs in the browser, installs as an offline app (PWA), and ships as a Windows
 - **Trainer:** deals from a real shoe. You make the first decision with the keyboard or buttons, it tells you if that was the best play and what a mistake cost, then plays the hand out. It tracks your accuracy, streak and the total EV you gave away.
 - **Card counting (optional):** Hi-Lo running count, true count, decks left and your edge now. You can hide the count to practise keeping it yourself. The trainer switches to the **Illustrious 18** deviations (and insurance at +3) when the count calls for them, and the I18 table highlights the one that applies.
 
+### Kuhn poker
+- **The game:** a Jack, a Queen and a King; each player antes 1 and gets one card; bets are 1 chip. Small enough to solve perfectly.
+- **Play the perfect player:** you switch seats each hand. After every choice the app shows the exact EV of each option against perfect play, and says when they are equal (which is the point of an equilibrium).
+- **The perfect strategy:** the full Nash equilibrium table. A slider sets player 1's bluffing rate α (0 to 1/3); the King bet (3α) and Queen call (α + 1/3) move with it, and the game value stays −1/18 for player 1.
+- **Why bluffing works:** pick a common mistake (never bluffing, bluffing too much, folding or always calling the Queen) and see exactly how many chips a best reply wins from it.
+
+### Video poker (Jacks or Better)
+- **Best hold:** pick or deal five cards. For all 32 holds the worker enumerates every draw from the 47 cards left (2,598,960 draws in all) and ranks them by exact EV. Click cards to try your own hold and see what it costs.
+- **Pay tables:** 9/6, 8/6, 8/5, 7/5 and 6/5. The long-run return with perfect play (99.54% for 9/6 down to 95.00% for 6/5) is the published full-game figure from the Wizard of Odds; working out a whole pay table's return takes all 2.6 million starting hands, which is too slow for a browser.
+
+### Gin rummy
+- **Best melds and deadwood:** exact, by searching every way to split the hand into sets and runs (aces low).
+- **Discard advice (11 cards):** the discard that leaves the least deadwood; ties go to the one that leaves more unseen cards that would lower it again.
+- **Draw advice:** take the face-up card only if it goes straight into a meld and lowers your deadwood.
+- **Knock advice:** gin at 0; knock with 10 or less early, and only with lower deadwood later in the hand. These are rules of thumb, and the card is labelled **Heuristic**.
+
+### Cribbage
+- **Score a hand:** fifteens, pairs, runs, flush (4 or 5; crib needs 5) and nobs, line by line.
+- **Best throw:** for all 15 ways to throw two of your six cards, the exact average over all 46 cut cards for your hand, and over every pair the other player could throw (and every cut) for the crib. The crib average treats their throw as random, which the app says. Dealer adds the crib, the other player subtracts it.
+
 ### Everywhere
-- Spotlight **tour** with live examples on each step, plus 13 short **lessons** with a quiz each (hand rankings to deviations).
+- Spotlight **tour** with live examples on each step, plus 17 short **lessons** with a quiz each (hand rankings to deviations).
 - Four looks × light/dark, defaulting to **System**. The layout stays put while numbers change: panels have fixed heights and numbers use tabular figures.
 - Works offline as a PWA; desktop app with an update check (Settings → Updates, desktop only).
 - Keyboard first, screen-reader labels on every control.
@@ -92,7 +120,7 @@ Progress is saved under `card-solver-tutorial` in local storage.
 
 | Key | Action |
 |---|---|
-| `1` / `2` | Poker / Blackjack tab |
+| `1` to `6` | Poker, Blackjack, Kuhn, Video Poker, Gin, Cribbage tab |
 | `?` | Help |
 | **Poker** | |
 | rank then suit (`a` `h`, `t` `s`…) | Put that card in the selected spot |
@@ -103,6 +131,11 @@ Progress is saved under `card-solver-tutorial` in local storage.
 | **Blackjack trainer** | |
 | `Enter` / `Space` | Deal |
 | `h` `s` `d` `p` `u` | Hit, stand, double, split, surrender |
+| **Kuhn poker** | |
+| `k` `b` `c` `f` | Check, bet, call, fold |
+| `Enter` / `Space` | Deal |
+| **Video poker, Gin, Cribbage** | |
+| `r` | Deal random cards |
 
 ## The game theory
 
@@ -114,7 +147,8 @@ The app explains its numbers instead of just showing them. In short:
 - **Ranges:** players do not have one hand, they have a set of hands. There are 1,326 starting combinations in 169 classes: 6 ways to hold a pair, 4 for a suited hand, 12 for an offsuit one.
 - **Minimum defence frequency (MDF):** against a bet `B` into a pot `P`, defend at least `P / (P + B)` of the time, or the bettor profits by bluffing with anything. Pot-sized bet: defend 50%.
 - **Bluff share:** a balanced bettor bluffs `B / (P + 2B)` of the time, which makes the caller's call break even. Pot-sized bet: one bluff for every two value bets (33%).
-- **GTO** (game theory optimal) means a strategy that cannot be exploited. Card Solver does **not** compute GTO. Its decision model is deliberately simple, and the panel says so.
+- **GTO** (game theory optimal) means a strategy that cannot be exploited. For Hold'em, Card Solver does **not** compute GTO: its decision model is deliberately simple, and the panel says so. For **Kuhn poker** it does: the app has the exact Nash equilibrium, where player 1 bluffs the Jack α of the time (any α from 0 to 1/3) and player 2 calls with the Queen 1/3 of the time, which makes each side's bluffs and calls break even. The game is worth −1/18 of a chip a hand to player 1.
+- **Video poker, gin and cribbage** are mostly about your own cards: video poker and the cribbage throw are exact averages over every card that could come; gin's discard and knock choices depend on the other player and are given as rules of thumb.
 - **Blackjack** has no opponent making choices, so the best play is pure maths: the action with the highest EV given the cards left. Basic strategy is that, summarised. Counting tracks which cards are left, so you can bet more when they favour you and occasionally play differently.
 
 ## How the engines work
@@ -144,6 +178,18 @@ The 13×13 grid puts pairs on the diagonal, suited hands above it and offsuit be
 
 ### Counting (`src/blackjack/counting.ts`)
 Hi-Lo: 2–6 count +1, 7–9 count 0, tens and aces count −1. True count = running count ÷ decks left. The edge estimate is the base edge + 0.5% per true count. The Illustrious 18 deviations are stored as (hand, upcard, index, play) and applied when the true count passes the index.
+
+### Kuhn poker (`src/kuhn/engine.ts`)
+Strategies are probabilities at each decision. The EV of any pair of strategies is an exact average over the six deals. Best replies are worked out decision by decision, which gives each strategy's exploitability (how much a best reply wins above the game value). Tests check that every equilibrium in the α family is worth exactly −1/18 and can't be exploited.
+
+### Video poker (`src/vpoker/engine.ts`)
+A fast five-card classifier for the Jacks or Better hands, and a full enumeration of each hold's draws. Tests check the hand names, a four-to-a-royal EV worked out by hand, and the 1,533,939 draws for a full redraw.
+
+### Gin rummy (`src/gin/engine.ts`)
+Lists every set and run (and every 3-card part of a bigger one), then finds the lowest deadwood with a memoised search over which meld covers the first loose card. Discards try all 11 cards; the "helpful cards" count re-solves the hand for each unseen card.
+
+### Cribbage (`src/cribbage/engine.ts`)
+Scores fifteens over all 31 card groups, pairs, runs with multiplicity, flushes and nobs. The best throw averages the 46 cuts for the hand and 1,035 × 44 crib deals for each of the 15 throws (about 680,000 crib scores), in the worker in well under a second.
 
 ## Theming
 
