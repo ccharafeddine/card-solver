@@ -1,0 +1,5 @@
+2026-10-15  Scaffolded from sudoku-solver (themes, Tauri, PWA, CI, release, tour/spotlight).
+2026-10-15  Poker engine + tests (evaluator ~1.1M evals/s; exact limit 1.2M deals).
+2026-10-15  Blackjack engine + tests (6D S17 DAS LS 3:2 = -0.38%; chart matches basic strategy).
+2026-10-15  UI for both tabs, worker, tutorial rewrite (13 lessons, 14-step tour).
+2026-10-15  Styles, brand, docs; verified all 8 theme variants, tour restore, trainer, phone width.
