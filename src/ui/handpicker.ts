@@ -21,13 +21,14 @@ export class HandPicker {
       box.append(b);
     }
   }
-  /** Dim the cards in use; `full` disables the rest when the hand can't take more. */
+  /** Dim the cards in use; when the hand is `full`, the rest are marked so a click there is clearly ignored. */
   mark(used: number[], full: boolean) {
+    this.box.classList.toggle('full', full);
     this.box.querySelectorAll<HTMLButtonElement>('.pick').forEach((b) => {
       const on = used.includes(+b.dataset.c!);
       b.classList.toggle('used', on);
       b.setAttribute('aria-pressed', String(on));
-      b.disabled = full && !on;
+      b.setAttribute('aria-disabled', String(full && !on));
     });
   }
 }
