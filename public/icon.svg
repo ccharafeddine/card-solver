@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<!-- Card Solver mark: an ace of spades and a heart fanned on a felt-dark tile, a chip lit in amber, and the suite's solve arrow. Original artwork. -->
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2e2924"/><stop offset="1" stop-color="#15130f"/></linearGradient>
+  <linearGradient id="acc" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#c25f12"/><stop offset="1" stop-color="#f2a04a"/></linearGradient>
+  <linearGradient id="lit" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f2a04a"/><stop offset="1" stop-color="#c25f12"/></linearGradient>
+  <radialGradient id="glow" cx=".5" cy=".42" r=".5"><stop offset="0" stop-color="#f2a04a" stop-opacity=".22"/><stop offset="1" stop-color="#f2a04a" stop-opacity="0"/></radialGradient>
+</defs>
+<rect width="512" height="512" rx="112" fill="url(#bg)"/>
+<rect x="6" y="6" width="500" height="500" rx="106" fill="none" stroke="#fff" stroke-opacity=".08" stroke-width="4"/>
+<rect width="512" height="512" rx="112" fill="url(#glow)"/>
+<g>
+<g transform="translate(200 210) rotate(-12)">
+  <rect x="-81.0" y="-111.0" width="170" height="238" rx="18" fill="#000" opacity=".35"/>
+  <rect x="-85.0" y="-119.0" width="170" height="238" rx="18" fill="#f6f2e9"/>
+  <rect x="-85.0" y="107.0" width="170" height="12" rx="6" fill="#000" opacity=".06"/>
+  <text x="-69.0" y="-75.0" font-family="Georgia, serif" font-weight="700" font-size="42" fill="#c3122f">K</text>
+  <path d="M 0 34 C -12 22 -34 8 -34 -10 C -34 -26 -12 -32 0 -16 C 12 -32 34 -26 34 -10 C 34 8 12 22 0 34 Z" transform="translate(6 18) scale(1.45)" fill="#c3122f"/>
+</g>
+<g transform="translate(300 206) rotate(10)">
+  <rect x="-81.0" y="-111.0" width="170" height="238" rx="18" fill="#000" opacity=".35"/>
+  <rect x="-85.0" y="-119.0" width="170" height="238" rx="18" fill="#f6f2e9"/>
+  <rect x="-85.0" y="107.0" width="170" height="12" rx="6" fill="#000" opacity=".06"/>
+  <text x="-69.0" y="-75.0" font-family="Georgia, serif" font-weight="700" font-size="42" fill="#2a2520">A</text>
+  <path d="M 0 -34 C 10 -18 34 -8 34 10 C 34 24 20 30 8 22 C 9 30 12 36 18 40 L -18 40 C -12 36 -9 30 -8 22 C -20 30 -34 24 -34 10 C -34 -8 -10 -18 0 -34 Z" transform="translate(6 18) scale(1.45)" fill="#2a2520"/>
+</g>
+<circle cx="378" cy="318" r="44" fill="url(#lit)"/>
+<circle cx="378" cy="318" r="30" fill="none" stroke="#fff" stroke-width="7" stroke-dasharray="11 8" opacity=".85"/>
+<path d="M 96 372 A 190 190 0 0 0 418 362" fill="none" stroke="url(#acc)" stroke-width="22" stroke-linecap="round"/>
+<path d="M 446 334 L 426 396 L 382 350 Z" fill="#f2a04a" stroke="#f2a04a" stroke-width="8" stroke-linejoin="round"/>
+</g>
+</svg>
