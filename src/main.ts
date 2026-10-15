@@ -1,10 +1,14 @@
 import './style.css';
 import { checkForUpdate, updatesEnabled } from './app/update';
 import { Tutorial } from './tutorial/tutorial';
-import type { TourDemo } from './tutorial/lessons';
+import { GAME_TABS, type GameTab, type TourDemo } from './tutorial/lessons';
 import { pickSkin, resolveTheme, modeFor, SKINS, SKIN_LABELS, SKIN_MODES, type SkinId } from './theme/skins';
-import { PokerTab, type PokerState } from './ui/poker';
+import { PokerTab } from './ui/poker';
 import { BlackjackTab } from './ui/blackjack';
+import { KuhnTab } from './ui/kuhn';
+import { VideoPokerTab } from './ui/vpoker';
+import { GinTab } from './ui/gin';
+import { CribbageTab } from './ui/cribbage';
 
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
 
@@ -34,49 +38,63 @@ const statusOf = (id: string) => (text: string, kind: '' | 'ok' | 'bad' | 'think
   el.className = `status ${kind}`;
 };
 
-// ---------- the two games ----------
+// ---------- the games ----------
 const poker = new PokerTab(statusOf('pk-status'));
 const blackjack = new BlackjackTab(statusOf('bj-status'));
-type Tab = 'poker' | 'blackjack';
+const kuhn = new KuhnTab(statusOf('ku-status'));
+const vpoker = new VideoPokerTab(statusOf('vp-status'));
+const gin = new GinTab(statusOf('gn-status'));
+const cribbage = new CribbageTab(statusOf('cb-status'));
+type Tab = GameTab;
 const TAB_KEY = 'card-solver-tab';
-let tab: Tab = localStorage.getItem(TAB_KEY) === 'blackjack' ? 'blackjack' : 'poker';
+const savedTab = localStorage.getItem(TAB_KEY);
+let tab: Tab = (GAME_TABS as readonly string[]).includes(savedTab ?? '') ? savedTab as Tab : 'poker';
 function showTab(t: Tab, remember = true) {
   tab = t;
   if (remember) localStorage.setItem(TAB_KEY, t);
-  for (const x of ['poker', 'blackjack'] as Tab[]) {
+  for (const x of GAME_TABS) {
     $(x).classList.toggle('hidden', x !== t);
     const b = $(`tab-${x}`);
     b.setAttribute('aria-selected', String(x === t));
     b.tabIndex = x === t ? 0 : -1;
   }
 }
-$('tab-poker').onclick = () => showTab('poker');
-$('tab-blackjack').onclick = () => showTab('blackjack');
+for (const x of GAME_TABS) $(`tab-${x}`).onclick = () => showTab(x);
 $('tabs').addEventListener('keydown', (e) => {
   if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
   e.preventDefault();
-  showTab(tab === 'poker' ? 'blackjack' : 'poker');
+  const i = GAME_TABS.indexOf(tab) + (e.key === 'ArrowRight' ? 1 : -1);
+  showTab(GAME_TABS[(i + GAME_TABS.length) % GAME_TABS.length]);
   $(`tab-${tab}`).focus();
 });
 showTab(tab, false);
 
 // ---------- tour examples ----------
 // Each example changes the app only for the step; everything (cards, range, rules,
-// the trainer hand and the shoe, the tab) is put back exactly afterwards.
+// the trainer hand and the shoe, every tab's cards, the tab) is put back exactly afterwards.
 let tourHome: Tab | null = null;
-let demoSaved: { tab: Tab; poker: PokerState; bj: ReturnType<BlackjackTab['snapshot']> } | null = null;
+const snap = () => ({ tab, poker: poker.snapshot(), bj: blackjack.snapshot(), kuhn: kuhn.snapshot(), vp: vpoker.snapshot(), gin: gin.snapshot(), crib: cribbage.snapshot() });
+let demoSaved: ReturnType<typeof snap> | null = null;
 function tourDemo(id: TourDemo | null) {
   if (!id) {
     if (demoSaved) {
       const d = demoSaved; demoSaved = null;
       poker.restore(d.poker); poker.save();
       blackjack.restore(d.bj); blackjack.save();
+      kuhn.restore(d.kuhn); kuhn.save();
+      vpoker.restore(d.vp); vpoker.save();
+      gin.restore(d.gin); gin.save();
+      cribbage.restore(d.crib); cribbage.save();
       ($('i18') as HTMLDetailsElement).open = false;
     }
     return;
   }
-  if (!demoSaved) demoSaved = { tab, poker: poker.snapshot(), bj: blackjack.snapshot() };
+  demoSaved ??= snap();
   if (['deal', 'range', 'equity', 'decide', 'theory', 'chart'].includes(id)) poker.demo(id);
+  else if (id.startsWith('ku-')) kuhn.demo(id);
+  else if (id.startsWith('vp-')) vpoker.demo(id);
+  else if (id.startsWith('gn-')) gin.demo(id);
+  else if (id.startsWith('cb-')) cribbage.demo(id);
   else blackjack.demo(id);
 }
 
@@ -113,9 +131,10 @@ document.addEventListener('keydown', (e) => {
   const t = e.target as HTMLElement;
   if (t.closest('input, textarea, select') || e.ctrlKey || e.metaKey || e.altKey) return;
   if (e.key === '?') { e.preventDefault(); helpDialog.showModal(); return; }
-  if (e.key === '1' && !t.closest('#table-card')) { showTab('poker'); return; }
-  if (e.key === '2' && !t.closest('#table-card')) { showTab('blackjack'); return; }
-  const handled = tab === 'poker' ? poker.onKey(e) : blackjack.onKey(e);
+  const n = Number(e.key);
+  if (Number.isInteger(n) && n >= 1 && n <= GAME_TABS.length && !t.closest('#table-card')) { showTab(GAME_TABS[n - 1]); return; }
+  const games = { poker, blackjack, kuhn, vpoker, gin, cribbage };
+  const handled = games[tab].onKey(e);
   if (handled) e.preventDefault();
 });
 
@@ -214,4 +233,4 @@ if (import.meta.env.PROD && 'serviceWorker' in navigator && location.protocol.st
 }
 
 // Dev-only handle for browser checks.
-if (import.meta.env.DEV) (window as unknown as { __app: object }).__app = { poker, blackjack };
+if (import.meta.env.DEV) (window as unknown as { __app: object }).__app = { poker, blackjack, kuhn, vpoker, gin, cribbage };

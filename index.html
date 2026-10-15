@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#ece7dd" />
-    <meta name="description" content="Poker and blackjack, worked out exactly: Hold'em equity against ranges, outs, pot odds and EV, and blackjack basic strategy for any rules, with a trainer and card counting. The game theory, explained in plain words." />
+    <meta name="description" content="Card games, worked out exactly: Hold'em equity and pot odds, blackjack basic strategy and counting, Kuhn poker solved, the best video poker hold, gin rummy melds and cribbage discards. The game theory, explained in plain words." />
     <meta property="og:title" content="Card Solver" />
     <meta property="og:description" content="Poker equity, ranges and pot odds, and exact blackjack strategy with a trainer and card counting, with the game theory explained." />
     <meta property="og:image" content="./og-image.png" />
@@ -24,6 +24,10 @@
       <nav id="tabs" class="tabs" role="tablist" aria-label="Game">
         <button role="tab" id="tab-poker" aria-controls="poker" aria-selected="true">♠ Poker</button>
         <button role="tab" id="tab-blackjack" aria-controls="blackjack" aria-selected="false">🂡 Blackjack</button>
+        <button role="tab" id="tab-kuhn" aria-controls="kuhn" aria-selected="false" title="Kuhn poker: 3-card poker, solved">♛ Kuhn</button>
+        <button role="tab" id="tab-vpoker" aria-controls="vpoker" aria-selected="false" title="Video poker: Jacks or Better">🎰 Video Poker</button>
+        <button role="tab" id="tab-gin" aria-controls="gin" aria-selected="false" title="Gin rummy">♦ Gin</button>
+        <button role="tab" id="tab-cribbage" aria-controls="cribbage" aria-selected="false" title="Cribbage">♣ Cribbage</button>
       </nav>
       <div class="hdr-icons">
         <button id="tutorial" class="icon" aria-label="Tutorial: lessons and app tour" title="Tutorial"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/><path d="M22 9v6"/></svg></button>
@@ -173,6 +177,159 @@
       </section>
     </main>
 
+    <main id="kuhn" class="page hidden" role="tabpanel" aria-labelledby="tab-kuhn">
+      <section class="left" aria-label="Rules and game">
+        <div class="card" id="ku-rules">
+          <div class="row spread"><h2>Kuhn poker: poker with 3 cards</h2><span class="badge" title="Every number here is worked out exactly">Exact</span></div>
+          <p>The smallest real poker game, small enough to solve perfectly. The deck is just a <b>Jack</b>, a <b>Queen</b> and a <b>King</b> (King beats Queen beats Jack). Two players each get one card and put 1 chip in the pot.</p>
+          <ol class="steps">
+            <li>Player 1 <b>checks</b> (bets nothing) or <b>bets</b> 1 chip.</li>
+            <li>If player 1 bet, player 2 <b>calls</b> (puts in 1 too) or <b>folds</b> (gives up the pot).</li>
+            <li>If player 1 checked, player 2 checks (show cards, higher wins) or bets, and then player 1 calls or folds.</li>
+          </ol>
+          <p class="muted fine">Mathematicians found the perfect way to play it in 1950. It shows why even perfect players bluff.</p>
+        </div>
+        <div class="card" id="ku-play">
+          <div class="row spread"><h2>Play the perfect player</h2><span id="ku-stats" class="muted mono"></span></div>
+          <div class="table-felt ku-felt">
+            <div class="felt-row"><span class="slot-label">Perfect player</span><div id="ku-bot" class="hand"></div></div>
+            <div class="ku-mid"><b id="ku-pot">Pot: 2 chips</b><span id="ku-seat" class="slot-label"></span><span id="ku-log" class="ku-log"></span></div>
+            <div class="felt-row"><span class="slot-label">You</span><div id="ku-you" class="hand"></div></div>
+          </div>
+          <div class="row actions" id="ku-actions"><button data-i="0">Check / Fold</button><button data-i="1">Bet / Call</button></div>
+          <div id="ku-feedback" class="tr-feedback ku-feedback" aria-live="polite"></div>
+          <div class="row"><button id="ku-deal" class="go">Deal</button><button id="ku-reset" class="link">Reset stats</button></div>
+        </div>
+      </section>
+      <section class="right" aria-label="Strategy and theory">
+        <div id="ku-status" class="status" role="status" aria-live="polite">Press Deal to play a hand against perfect play.</div>
+        <div class="card" id="ku-strategy">
+          <div class="row spread"><h2>The perfect strategy</h2><span class="badge">Nash equilibrium</span></div>
+          <p class="muted fine">How often to do each thing with each card. Nobody can win more against it by playing differently.</p>
+          <table class="ku-table" id="ku-table"></table>
+          <label class="field wide">How often player 1 bluffs with the Jack <output id="ku-alpha-out">17%</output><input id="ku-alpha" type="range" min="0" max="100" value="50" /></label>
+          <p class="fine muted">Any rate from 0% to 33% is perfect, as long as player 1 also bets the King 3 times as often and calls with the Queen a bit more.</p>
+          <p class="fine" id="ku-value"></p>
+        </div>
+        <div class="card" id="ku-why">
+          <h2>Why bluffing works</h2>
+          <p>If you only bet with good cards, your bets give your hand away and nobody pays you. Bluffing sometimes with your worst card keeps the other player guessing, so they have to call sometimes, and then your King gets paid.</p>
+          <p>The perfect player bluffs <b>just enough</b> that calling and folding are worth exactly the same to you. Pick a mistake to see what it costs:</p>
+          <div class="seg" role="tablist" aria-label="Mistakes" id="ku-leaks"></div>
+          <div id="ku-leak-body" class="theory-body ku-leak"></div>
+        </div>
+      </section>
+    </main>
+
+    <main id="vpoker" class="page hidden" role="tabpanel" aria-labelledby="tab-vpoker">
+      <section class="left" aria-label="Your hand and the pay table">
+        <div class="card" id="vp-hand">
+          <div class="row spread"><h2>Your five cards</h2>
+            <div class="row tight"><button id="vp-random" title="Deal five random cards">🎲 Deal</button><button id="vp-clear">Clear</button></div>
+          </div>
+          <p class="muted fine">Jacks or Better: you get 5 cards, keep (hold) any of them, and the rest are replaced. Then you're paid by the table. A pair of jacks or better is the smallest win.</p>
+          <div id="vp-cards" class="vp-cards"></div>
+          <p class="muted pick-help" id="vp-help"></p>
+          <div id="vp-picker"></div>
+        </div>
+        <div class="card" id="vp-paycard">
+          <div class="row spread"><h2>Pay table</h2><select id="vp-table" aria-label="Pay table"></select></div>
+          <div class="vp-pay-wrap">
+            <table class="ku-table vp-pays" id="vp-pays" aria-label="Coins paid per coin bet"></table>
+            <div class="vp-return"><small>Return with perfect play</small><b id="vp-return" class="mono">–</b><p class="fine" id="vp-return-note"></p></div>
+          </div>
+          <p class="muted fine">Pays are per coin bet (the royal's 800 is the 4,000-coin jackpot for a 5-coin bet). Returns are the published full-game results for perfect play, from the Wizard of Odds; the best hold for each hand is worked out here exactly.</p>
+        </div>
+      </section>
+      <section class="right" aria-label="Best hold">
+        <div id="vp-status" class="status" role="status" aria-live="polite">Pick five cards, or press Deal.</div>
+        <div class="card" id="vp-best">
+          <div class="row spread"><h2>Best hold</h2><span class="badge" title="Every possible draw is counted">Exact</span></div>
+          <table class="ev-table vp-holds" id="vp-holds" aria-label="Coins back per coin bet for each hold"></table>
+          <p id="vp-mine" class="vp-mine"></p>
+          <p id="vp-why" class="why"></p>
+        </div>
+        <div class="card" id="vp-how">
+          <h2>How it works</h2>
+          <p>There are 32 ways to choose what to hold (including keeping nothing). For each one the app deals every possible replacement from the 47 cards left, up to 1.5 million of them, adds up the payouts and divides. The hold with the highest average is the best play.</p>
+          <p>Surprises it finds: keep a small pair over three cards to a straight flush, and throw away a flush you've already made when you hold four to a royal.</p>
+        </div>
+      </section>
+    </main>
+
+    <main id="gin" class="page hidden" role="tabpanel" aria-labelledby="tab-gin">
+      <section class="left" aria-label="Your hand and melds">
+        <div class="card" id="gn-hand">
+          <div class="row spread"><h2>Your hand</h2>
+            <div class="row tight"><button id="gn-random" title="Deal a random hand and face-up card">🎲 Deal</button><button id="gn-clear">Clear</button></div>
+          </div>
+          <div class="gn-top">
+            <div class="slot-group grow"><span class="slot-label" id="gn-count"></span><div id="gn-cards" class="hand gn-cards"></div></div>
+            <div class="slot-group"><span class="slot-label">Face-up card</span><div id="gn-up" class="hand"></div></div>
+          </div>
+          <div class="row"><div class="group" id="gn-mode" role="radiogroup" aria-label="What you're picking"><button role="radio" data-mode="hand">Pick my cards</button><button role="radio" data-mode="up">Pick face-up card</button></div>
+            <label class="field inline">Turn <input id="gn-turn" type="number" min="1" max="30" value="1" /></label></div>
+          <p class="muted pick-help" id="gn-help"></p>
+          <div id="gn-picker"></div>
+        </div>
+        <div class="card" id="gn-melds-card">
+          <div class="row spread"><h2>Best melds</h2><span class="muted">Deadwood <b id="gn-dead" class="mono">–</b></span></div>
+          <div id="gn-melds" class="gn-melds"></div>
+          <p class="muted fine">Found exactly by trying every way to split your cards. Aces are low (A-2-3 is a run, Q-K-A isn't).</p>
+        </div>
+      </section>
+      <section class="right" aria-label="Advice">
+        <div id="gn-status" class="status" role="status" aria-live="polite">Pick your 10 cards, or press Deal.</div>
+        <div class="card" id="gn-advice-card">
+          <div class="row spread"><h2>What to do</h2><span class="badge" title="Rules of thumb on top of the exact deadwood maths, not a full solution of the game">Heuristic</span></div>
+          <div id="gn-advice" class="why gn-advice"></div>
+          <table class="ev-table" id="gn-discards" aria-label="Each discard"></table>
+          <p class="muted fine">Deadwood is exact. Which card to throw, whether to take the face-up card, and when to knock use rules of thumb good players use; gin rummy is too big to solve perfectly here.</p>
+        </div>
+        <div class="card" id="gn-how">
+          <h2>How gin rummy works</h2>
+          <p>Each player has 10 cards. On your turn, take the face-up card or the top of the pile, then throw one away. You're trying to group your cards into <b>melds</b>: sets (3 or 4 of a rank, like 9 9 9) or runs (3 or more in a row in one suit, like 4♥ 5♥ 6♥).</p>
+          <p>Cards not in a meld are <b>deadwood</b> and count against you (aces 1, pictures 10). With 10 or less you can <b>knock</b> to end the hand; with 0 you go <b>gin</b> for a bonus.</p>
+        </div>
+      </section>
+    </main>
+
+    <main id="cribbage" class="page hidden" role="tabpanel" aria-labelledby="tab-cribbage">
+      <section class="left" aria-label="Your cards">
+        <div class="card" id="cb-hand">
+          <div class="row spread"><h2>Your cards</h2>
+            <div class="row tight"><button id="cb-random" title="Deal random cards">🎲 Deal</button><button id="cb-clear">Clear</button></div>
+          </div>
+          <div class="row"><div class="group" id="cb-mode" role="radiogroup" aria-label="What to work out"><button role="radio" data-mode="throw">Best throw (6 cards)</button><button role="radio" data-mode="score">Score a hand</button></div>
+            <div class="group" id="cb-seat-row" role="radiogroup" aria-label="Who deals"><button role="radio" data-seat="dealer">I deal</button><button role="radio" data-seat="pone">They deal</button></div></div>
+          <div class="gn-top">
+            <div class="slot-group grow"><span class="slot-label">Your hand</span><div id="cb-cards" class="hand"></div></div>
+            <div class="slot-group" id="cb-starter-wrap"><span class="slot-label">Cut card</span><div id="cb-starter" class="hand"></div></div>
+          </div>
+          <div class="row" id="cb-crib-row"><label class="check"><input type="checkbox" id="cb-iscrib" /> This is the crib (only 5-card flushes count)</label></div>
+          <p class="muted pick-help" id="cb-help"></p>
+          <div id="cb-picker"></div>
+        </div>
+        <div class="card" id="cb-how">
+          <h2>How cribbage scoring works</h2>
+          <p>You're dealt 6 cards and throw 2 into the <b>crib</b>, a bonus hand for the dealer. Then a card is cut (the starter) and shared by everyone. Your 4 cards plus the cut score points for <b>fifteens</b> (cards adding to 15), <b>pairs</b>, <b>runs</b> (3 or more in a row), <b>flushes</b> and <b>nobs</b> (the jack of the cut's suit).</p>
+        </div>
+      </section>
+      <section class="right" aria-label="Results">
+        <div id="cb-status" class="status" role="status" aria-live="polite">Pick the six cards you were dealt, or press Deal.</div>
+        <div class="card" id="cb-throw-card">
+          <div class="row spread"><h2>Best throw</h2><span class="badge" title="Exact averages; the crib assumes the other player throws two random cards">Exact average</span></div>
+          <table class="ev-table cb-throws" id="cb-throws" aria-label="Average points for each throw"></table>
+          <p id="cb-why" class="why"></p>
+          <p class="muted fine">Hand: the exact average over all 46 possible cut cards. Crib: the exact average over every 2 cards the other player could throw and every cut, treating their throw as random (real players throw better, so treat it as a guide). As dealer the crib is yours; otherwise it counts against you.</p>
+        </div>
+        <div class="card hidden" id="cb-score-card">
+          <h2>Score</h2>
+          <div id="cb-score"></div>
+        </div>
+      </section>
+    </main>
+
     <dialog id="settings-dialog" aria-labelledby="settings-title">
       <h2 id="settings-title">Settings</h2>
       <h3>Appearance</h3>
@@ -188,7 +345,7 @@
       <div class="row"><button id="check-update">Check for updates</button><span id="update-msg" class="muted" aria-live="polite"></span></div>
       </div>
       <h3>About</h3>
-      <p class="about">Card Solver <span id="version" class="mono"></span>. Poker equity, ranges and pot odds, and exact blackjack strategy with a trainer and card counting, with the game theory explained. Works offline. MIT licence.</p>
+      <p class="about">Card Solver <span id="version" class="mono"></span>. Poker equity, ranges and pot odds; exact blackjack strategy with a trainer and card counting; Kuhn poker solved; the best video poker hold; gin rummy melds; and cribbage scoring and discards. The game theory, explained. Works offline. MIT licence.</p>
       <h3>Play responsibly</h3>
       <p class="about muted" id="responsible">This app is for learning and fun. No strategy beats the house over time without counting, and even then the edge is small and swings are large. Only gamble with money you can afford to lose, set limits before you play, and never chase losses. If gambling stops being fun, talk to someone: in the US call or text 1-800-GAMBLER; elsewhere, look for a local gambling helpline.</p>
       <div class="row"><button id="settings-close" class="primary">Done</button></div>
@@ -196,12 +353,14 @@
     <dialog id="help-dialog" aria-labelledby="help-title">
       <h2 id="help-title">Help and shortcuts</h2>
       <table class="keys">
-        <tr><td><kbd>1</kbd> / <kbd>2</kbd></td><td>Poker / Blackjack tab</td></tr>
+        <tr><td><kbd>1</kbd> to <kbd>6</kbd></td><td>Poker, Blackjack, Kuhn, Video Poker, Gin, Cribbage tab</td></tr>
         <tr><td>Poker: type a card like <kbd>A</kbd> <kbd>h</kbd></td><td>Fill the picked spot (ranks 2–9, T, J, Q, K, A; suits c, d, h, s)</td></tr>
         <tr><td>Poker: <kbd>Backspace</kbd></td><td>Clear the picked spot</td></tr>
         <tr><td>Poker: <kbd>R</kbd> / <kbd>N</kbd></td><td>Random cards / next board card</td></tr>
         <tr><td>Blackjack trainer: <kbd>H</kbd> <kbd>S</kbd> <kbd>D</kbd> <kbd>P</kbd> <kbd>U</kbd></td><td>Hit, stand, double, split, surrender</td></tr>
         <tr><td>Blackjack trainer: <kbd>Enter</kbd> or <kbd>Space</kbd></td><td>Deal the next hand</td></tr>
+        <tr><td>Kuhn: <kbd>K</kbd> <kbd>B</kbd> <kbd>C</kbd> <kbd>F</kbd></td><td>Check, bet, call, fold; <kbd>Enter</kbd> deals</td></tr>
+        <tr><td>Video Poker, Gin, Cribbage: <kbd>R</kbd></td><td>Deal random cards</td></tr>
         <tr><td><kbd>?</kbd></td><td>This help</td></tr>
       </table>
       <div class="row"><button id="tour">Tutorial…</button><button id="help-appearance">Settings…</button><button id="help-close" class="primary">Close</button></div>
@@ -210,7 +369,7 @@
       <h2 id="tut-title">Tutorial</h2>
       <p id="tut-summary" class="muted"></p>
       <h3>Lessons</h3>
-      <p class="muted">Thirteen short lessons: hand rankings, equity, outs, pot odds, EV, ranges, bluffing and MDF, position, then blackjack strategy, house edge and counting. Each one asks a quick question.</p>
+      <p class="muted">Seventeen short lessons: hand rankings, equity, outs, pot odds, EV, ranges, bluffing and MDF, position, blackjack strategy, house edge and counting, then why perfect players bluff, the best video poker hold, gin deadwood and cribbage scoring. Each one asks a quick question.</p>
       <div class="row"><button id="tut-lessons" class="primary">Start the lessons</button><button id="tut-restart">Start over</button></div>
       <h3>App tour</h3>
       <p class="muted">A tour of every part of the app, with live examples on screen. Your own cards and settings are put back afterwards.</p>
