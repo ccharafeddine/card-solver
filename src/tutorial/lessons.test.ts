@@ -9,6 +9,10 @@ import { potOdds, evCall, mdf } from '../poker/decide';
 import { DEFAULT_RULES, gameEV, handEVs } from '../blackjack/engine';
 import { countAction, trueCount } from '../blackjack/counting';
 import { SEATS } from '../poker/charts';
+import { exploitP1 } from '../kuhn/engine';
+import { analyze, PAY_TABLES } from '../vpoker/engine';
+import { bestMelds } from '../gin/engine';
+import { score } from '../cribbage/engine';
 
 const c = (t: string) => parseCards(t)!;
 const L = (id: string) => LESSONS.find((l) => l.id === id)!;
@@ -16,7 +20,7 @@ const right = (id: string) => L(id).choices[L(id).answer];
 
 describe('lessons', () => {
   it('every lesson has a valid answer, a hint and an explanation', () => {
-    expect(LESSONS.length).toBe(13);
+    expect(LESSONS.length).toBe(17);
     for (const l of LESSONS) {
       expect(l.answer, l.id).toBeGreaterThanOrEqual(0);
       expect(l.answer, l.id).toBeLessThan(l.choices.length);
@@ -50,12 +54,20 @@ describe('lessons', () => {
     expect(right('count')).toBe(`+${trueCount(6, 104)}`);
     expect(countAction(10, 5, 10, 4, 'hit', ['hit', 'stand', 'double'])).toBe('stand');
     expect(right('deviate')).toBe('Stand');
+    // Kuhn: never bluffing gives away about 17 chips per 100 hands.
+    expect((exploitP1({ bet: [0, 0, 1], call: [0, 1 / 3, 1] }) * 100).toFixed(0)).toBe('17');
+    expect(L('kuhn').explain).toMatch(/about 17 extra chips/);
+    expect(right('kuhn')).toMatch(/call sometimes/);
+    expect(analyze(c('6c 6d Ts 9s 8s'), PAY_TABLES[0].pays)[0].held.map((x) => x >> 2)).toEqual([4, 4]);
+    expect(right('vpoker')).toBe('The pair of 6s');
+    expect(right('gin')).toBe(String(bestMelds(c('3c 3d 3h Ks 5d')).points));
+    expect(right('cribbage')).toBe(String(score(c('5c 5d 5h Js'), c('5s')[0]).total));
   });
 });
 
 describe('tour', () => {
   it('gives the main tools a live example and names a tab for each game step', () => {
-    for (const id of ['table', 'range', 'equity', 'decide', 'theory', 'charts', 'rules', 'hand', 'trainer', 'count']) expect(TOUR.find((t) => t.id === id)?.demo, id).toBeTruthy();
+    for (const id of ['table', 'range', 'equity', 'decide', 'theory', 'charts', 'rules', 'hand', 'trainer', 'count', 'ku-play', 'ku-strategy', 'ku-why', 'vp-hand', 'vp-best', 'gn-hand', 'gn-advice', 'cb-throw', 'cb-score']) expect(TOUR.find((t) => t.id === id)?.demo, id).toBeTruthy();
     for (const t of TOUR) if (t.demo) expect(t.tab).toBeTruthy();
     expect(new Set(TOUR.map((t) => t.id)).size).toBe(TOUR.length);
   });

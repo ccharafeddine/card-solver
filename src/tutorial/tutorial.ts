@@ -4,7 +4,7 @@
  * tour of the app, whose steps set up live examples through `demo`.
  */
 import { SpotlightTour } from './spotlight';
-import { LESSONS, TOUR, WELCOME, loadProgress, progressSummary, saveProgress, type Lesson, type Progress, type TourDemo } from './lessons';
+import { LESSONS, TOUR, WELCOME, loadProgress, progressSummary, saveProgress, type GameTab, type Lesson, type Progress, type TourDemo } from './lessons';
 import { cardFace } from '../ui/cards';
 
 const el = <K extends keyof HTMLElementTagNameMap>(tag: K, props: Partial<HTMLElementTagNameMap[K]> = {}, ...kids: (Node | string)[]) => {
@@ -16,7 +16,7 @@ const el = <K extends keyof HTMLElementTagNameMap>(tag: K, props: Partial<HTMLEl
 export interface TutorialHooks {
   onFinish(): void;
   /** Show a tab before a lesson or tour step about it. */
-  showTab(tab: 'poker' | 'blackjack'): void;
+  showTab(tab: GameTab): void;
   /** The tour opened or closed: the app remembers and restores the tab the player was on. */
   tourOpen?: (open: boolean) => void;
   /** Set up a tour step's live example (null: put everything back). */

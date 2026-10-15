@@ -56,7 +56,7 @@ describe('tour helpers', () => {
     expect(unionRect([{ left: 10, top: 20, width: 100, height: 100 }, { left: 300, top: 50, width: 40, height: 200 }])).toEqual({ left: 10, top: 20, width: 330, height: 230 });
   });
   it('gives every tool and helper a live example on the board', () => {
-    for (const t of TOUR.filter((x) => x.demo)) expect(t.tab, t.id).toMatch(/^(poker|blackjack)$/);
+    for (const t of TOUR.filter((x) => x.demo)) expect(t.tab, t.id).toMatch(/^(poker|blackjack|kuhn|vpoker|gin|cribbage)$/);
     expect(TOUR.filter((x) => x.demo).length).toBeGreaterThanOrEqual(10);
   });
   it('drops steps whose target is not visible', () => {

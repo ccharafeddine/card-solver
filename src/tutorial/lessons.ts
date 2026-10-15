@@ -5,9 +5,12 @@
  * against the app's own engines in lessons.test.ts.
  */
 
+export const GAME_TABS = ['poker', 'blackjack', 'kuhn', 'vpoker', 'gin', 'cribbage'] as const;
+export type GameTab = (typeof GAME_TABS)[number];
+
 export interface Lesson {
   id: string;
-  tab: 'poker' | 'blackjack';
+  tab: GameTab;
   title: string;
   /** One or two short paragraphs. */
   body: string[];
@@ -118,6 +121,38 @@ export const LESSONS: Lesson[] = [
     choices: ['Hit', 'Stand', 'Double'], answer: 1,
     explain: '15 vs 10 switches to stand at a true count of +4 or more.',
     hint: 'A high count means lots of tens are left.' },
+  { id: 'kuhn', tab: 'kuhn', title: 'Kuhn poker: why perfect players bluff',
+    body: ['Kuhn poker has only a Jack, a Queen and a King, so it can be solved perfectly. The perfect player sometimes bets with the Jack, the card that can never win a showdown.',
+      'That bluff isn\'t a trick for fun: if you never bluffed, a bet would always mean "I have the King", and nobody would ever call it.'],
+    show: 'Jh Qs Kd',
+    ask: 'Why does the perfect player sometimes bet with the Jack?',
+    choices: ['It\'s a mistake: never bet the worst card', 'So the other player has to call sometimes, and their King bets get paid', 'Because the Jack is secretly the best card'], answer: 1,
+    explain: 'Bluffing keeps the other player guessing. A player who never bluffs gives a smart opponent about 17 extra chips per 100 hands.',
+    hint: 'Think about what a bet would tell the other player if you only bet the King.' },
+  { id: 'vpoker', tab: 'vpoker', title: 'Video poker: hold the best average',
+    body: ['In Jacks or Better you hold some of your 5 cards and the rest are replaced. Each way to hold has an exact average payout, worked out by counting every possible draw.',
+      'The best hold is the one with the highest average, even if it doesn\'t feel exciting.'],
+    show: '6c 6d | Ts 9s 8s',
+    ask: 'You\'re dealt 6♣ 6♦ 10♠ 9♠ 8♠. What should you hold?',
+    choices: ['The pair of 6s', 'The three spades in a row (a straight flush draw)', 'Nothing: draw five new cards'], answer: 0,
+    explain: 'The small pair is worth more on average: it often turns into two pair, three of a kind or better.',
+    hint: 'A pair already has lots of ways to improve.' },
+  { id: 'gin', tab: 'gin', title: 'Gin rummy: count your deadwood',
+    body: ['Melds are sets (3 or 4 of a rank) or runs (3 or more in a row, one suit). Cards left over are deadwood: aces count 1, number cards their number, pictures 10.',
+      'Less deadwood is better. With 10 or less you can knock to end the hand.'],
+    show: '3c 3d 3h | Ks 5d',
+    ask: 'Your cards are 3♣ 3♦ 3♥ K♠ 5♦. How much deadwood do you have?',
+    choices: ['5', '10', '15', '24'], answer: 2,
+    explain: 'The three 3s are a set. The king (10) and the 5 are left over: 15 points.',
+    hint: 'Leave out the meld and add up the rest.' },
+  { id: 'cribbage', tab: 'cribbage', title: 'Cribbage: the perfect 29',
+    body: ['In cribbage your 4 cards plus the cut card score for fifteens (2 each), pairs (2 each), runs, flushes and nobs (the jack of the cut card\'s suit, 1 point).',
+      'The best possible hand is three 5s and the right jack, with the fourth 5 cut.'],
+    show: '5c 5d 5h Js | 5s',
+    ask: 'You hold 5♣ 5♦ 5♥ J♠ and the 5♠ is cut. What does it score?',
+    choices: ['15', '24', '28', '29'], answer: 3,
+    explain: 'Eight fifteens (16), six pairs from the four 5s (12) and nobs for the jack of spades (1): 29.',
+    hint: 'It\'s the highest score in the game.' },
 ];
 
 export interface TourStep {
@@ -128,14 +163,15 @@ export interface TourStep {
   body: string;
   touchBody?: string;
   /** Which tab must be showing. */
-  tab?: 'poker' | 'blackjack';
+  tab?: GameTab;
   /** A live example the app sets up while this step is open, then undoes. */
   demo?: TourDemo;
 }
-export type TourDemo = 'deal' | 'range' | 'equity' | 'decide' | 'theory' | 'chart' | 'rules' | 'hand' | 'bjchart' | 'trainer' | 'count';
+export type TourDemo = 'deal' | 'range' | 'equity' | 'decide' | 'theory' | 'chart' | 'rules' | 'hand' | 'bjchart' | 'trainer' | 'count'
+  | 'ku-play' | 'ku-strategy' | 'ku-why' | 'vp-hand' | 'vp-best' | 'gn-hand' | 'gn-advice' | 'cb-throw' | 'cb-score';
 
 export const TOUR: TourStep[] = [
-  { id: 'tabs', target: '#tabs', title: 'Two games', body: 'Card Solver has two parts: Poker (Texas Hold\'em) and Blackjack. Switch between them here. Each keeps its own settings.' },
+  { id: 'tabs', target: '#tabs', title: 'Six games', body: 'Card Solver has six parts: Poker (Texas Hold\'em), Blackjack, Kuhn poker, Video Poker, Gin Rummy and Cribbage. Switch between them here. Each keeps its own cards and settings.' },
   { id: 'table', target: '#table-card', tab: 'poker', demo: 'deal', title: 'Your cards and the board',
     body: 'Click a spot, then click a card to fill it: your two cards, the flop, turn and river, and any cards you know are gone (dead). Here we dealt A♥ K♥ with a flop of Q♥ J♦ 4♥.',
     touchBody: 'Tap a spot, then tap a card to fill it: your two cards, the flop, turn and river, and any cards you know are gone (dead). Here we dealt A♥ K♥ with a flop of Q♥ J♦ 4♥.' },
@@ -161,6 +197,28 @@ export const TOUR: TourStep[] = [
     body: 'Practise: the app deals, you choose, and it tells you if that was the best play and what each choice was worth. Your accuracy is tracked.' },
   { id: 'count', target: '#count-card', tab: 'blackjack', demo: 'count', title: 'Card counting',
     body: 'Turn on Hi-Lo counting to see the running and true count while you train, the 18 most useful strategy changes, and how the count moves the house edge.' },
+  { id: 'ku-rules', target: '#ku-rules', tab: 'kuhn', title: 'Kuhn poker',
+    body: 'Poker with only three cards: Jack, Queen and King. It\'s small enough to solve perfectly, so it shows the real reason good players bluff.' },
+  { id: 'ku-play', target: '#ku-play', tab: 'kuhn', demo: 'ku-play', title: 'Play the perfect player',
+    body: 'Play hands against the perfect strategy. After each choice the app shows what every choice was worth. Here you hold the Jack as player 1: betting (a bluff) and checking are worth exactly the same.' },
+  { id: 'ku-strategy', target: '#ku-strategy', tab: 'kuhn', demo: 'ku-strategy', title: 'The perfect strategy',
+    body: 'How often to check, bet, call or fold with each card. Slide the bluffing rate: anything from 0% to 33% is perfect, as long as the other numbers move with it.' },
+  { id: 'ku-why', target: '#ku-why', tab: 'kuhn', demo: 'ku-why', title: 'Why bluffing works',
+    body: 'Pick a common mistake, like never bluffing, and see exactly how many chips a smart opponent wins from it.' },
+  { id: 'vp-hand', target: '#vp-hand', tab: 'vpoker', demo: 'vp-hand', title: 'Video poker',
+    body: 'Pick or deal five cards, then click cards to hold them. Here: four cards to a royal flush plus a 2.' },
+  { id: 'vp-best', target: '#vp-best', tab: 'vpoker', demo: 'vp-best', title: 'The best hold',
+    body: 'The app counts every possible draw for all 32 ways to hold and ranks them. Here you held the three spades, but the pair of 6s is worth more.' },
+  { id: 'vp-pays', target: '#vp-paycard', tab: 'vpoker', title: 'Pay tables',
+    body: 'Machines that look the same can pay differently. The return shows how much of each bet comes back with perfect play: look for 9/6.' },
+  { id: 'gn-hand', target: '#gn-hand', tab: 'gin', demo: 'gn-hand', title: 'Gin rummy',
+    body: 'Pick your 10 cards and the face-up card. The app lays out your best melds and counts your deadwood, and says whether to take the face-up card.' },
+  { id: 'gn-advice', target: '#gn-advice-card', tab: 'gin', demo: 'gn-advice', title: 'What to throw, and when to knock',
+    body: 'Add the card you drew as an 11th card to see which card to throw away and whether to knock. This advice uses rules of thumb good players use, and is labelled that way.' },
+  { id: 'cb-throw', target: '#cb-throw-card', tab: 'cribbage', demo: 'cb-throw', title: 'Cribbage: the best throw',
+    body: 'Pick the six cards you were dealt and who deals. The app tries all 15 ways to throw two into the crib and averages every possible cut card and crib.' },
+  { id: 'cb-score', target: '#cb-score-card', tab: 'cribbage', demo: 'cb-score', title: 'Score any hand',
+    body: 'Pick four cards and the cut card to see every point explained. Here: the perfect 29.' },
   { id: 'settings', target: '#settings', title: 'Settings',
     body: 'The gear opens Settings: four looks, light or dark (or follow your computer), and About. The 🎓 button has these lessons and this tour.' },
 ];
@@ -197,7 +255,7 @@ export function progressSummary(p: Progress): string {
 
 export const WELCOME = {
   title: 'Welcome to Card Solver',
-  body: 'Poker and blackjack, worked out with real maths. The short lessons explain the ideas (odds, expected value, ranges, bluffing, basic strategy, counting) with a quick question each. The tour shows what every part of the app does, with live examples. Both live in the 🎓 Tutorial menu too.',
+  body: 'Card games worked out with real maths: poker, blackjack, Kuhn poker, video poker, gin rummy and cribbage. The short lessons explain the ideas (odds, expected value, ranges, bluffing, basic strategy, counting and more) with a quick question each. The tour shows what every part of the app does, with live examples. Both live in the 🎓 Tutorial menu too.',
   learn: 'Learn the ideas',
   tour: 'Tour the app',
   skip: 'Not now',
