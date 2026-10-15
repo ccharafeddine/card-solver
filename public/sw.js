@@ -1,6 +1,6 @@
 // Offline support for the installed PWA. Pages go network-first so a new
 // release shows up on the next online launch; hashed assets go cache-first.
-const CACHE = 'card-solver-v1';
+const CACHE = 'card-solver-v2';
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(['./', './index.html', './manifest.webmanifest', './icon.svg'])));
