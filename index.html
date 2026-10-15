@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#ece7dd" />
+    <meta name="description" content="Poker and blackjack, worked out exactly: Hold'em equity against ranges, outs, pot odds and EV, and blackjack basic strategy for any rules, with a trainer and card counting. The game theory, explained in plain words." />
+    <meta property="og:title" content="Card Solver" />
+    <meta property="og:description" content="Poker equity, ranges and pot odds, and exact blackjack strategy with a trainer and card counting, with the game theory explained." />
+    <meta property="og:image" content="./og-image.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="./og-image.png" />
+    <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="./icon-192.png" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <title>Card Solver</title>
+  </head>
+  <body>
+    <a class="skip" href="#tabs">Skip to the app</a>
+    <div id="error-banner" class="banner bad hidden" role="alert"></div>
+    <div id="update-banner" class="banner hidden" role="status"></div>
+    <header>
+      <h1><img src="./icon.svg" alt="" width="28" height="28" /> Card Solver</h1>
+      <nav id="tabs" class="tabs" role="tablist" aria-label="Game">
+        <button role="tab" id="tab-poker" aria-controls="poker" aria-selected="true">♠ Poker</button>
+        <button role="tab" id="tab-blackjack" aria-controls="blackjack" aria-selected="false">🂡 Blackjack</button>
+      </nav>
+      <div class="hdr-icons">
+        <button id="tutorial" class="icon" aria-label="Tutorial: lessons and app tour" title="Tutorial"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/><path d="M22 9v6"/></svg></button>
+        <button id="help" class="icon" aria-label="Help and shortcuts" title="Help (?)"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9.5"/><path d="M9.3 9.2a2.8 2.8 0 0 1 5.4 1c0 1.9-2.7 2.3-2.7 4"/><circle cx="12" cy="17.3" r=".6" fill="currentColor"/></svg></button>
+        <button id="settings" class="icon" aria-label="Settings: theme, updates and about" title="Settings" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+      </div>
+    </header>
+    <div id="onboarding" class="tip welcome hidden" role="dialog" aria-live="polite"></div>
+
+    <main id="poker" class="page" role="tabpanel" aria-labelledby="tab-poker">
+      <section class="left" aria-label="Cards and ranges">
+        <div class="card" id="table-card">
+          <div class="row spread"><h2>Cards</h2>
+            <div class="row tight"><button id="pk-random" title="Deal yourself random cards">🎲 Random</button><button id="pk-next" title="Deal the next board card (flop, turn, river)">Next card</button><button id="pk-clear" title="Clear all cards">Clear</button></div>
+          </div>
+          <div class="slots">
+            <div class="slot-group"><span class="slot-label">Your cards</span><div class="slot-row" data-group="hero"></div></div>
+            <div class="slot-group"><span class="slot-label">Flop</span><div class="slot-row" data-group="flop"></div></div>
+            <div class="slot-group"><span class="slot-label">Turn</span><div class="slot-row" data-group="turn"></div></div>
+            <div class="slot-group"><span class="slot-label">River</span><div class="slot-row" data-group="river"></div></div>
+            <div class="slot-group"><span class="slot-label">Dead <small class="muted">cards you know are gone</small></span><div class="slot-row" data-group="dead"></div></div>
+          </div>
+          <p class="muted pick-help" id="pick-help">Click a spot, then pick a card below. Click a filled spot to change it; right-click to clear it.</p>
+          <div id="picker" class="picker" role="grid" aria-label="Pick a card"></div>
+        </div>
+        <div class="card" id="range-card">
+          <div class="row spread"><h2>Opponents</h2><span id="range-info" class="muted"></span></div>
+          <div class="row">
+            <label class="field">How many <select id="pk-opps" aria-label="Number of opponents"></select></label>
+            <div class="group" id="range-mode" role="radiogroup" aria-label="What they might hold">
+              <button role="radio" data-mode="any" aria-checked="true">Any hand</button><button role="radio" data-mode="range" aria-checked="false">A range</button>
+            </div>
+            <select id="range-preset" aria-label="Range preset"></select>
+          </div>
+          <div id="range-wrap">
+            <div id="range-grid" class="hgrid" role="grid" aria-label="Starting-hand range: click or drag to add or remove hands"></div>
+            <div class="row"><input id="range-text" class="grow mono" type="text" aria-label="Range as text" placeholder="e.g. 77+, AJs, KQo" /><button id="range-apply">Use text</button><button id="range-clear">Clear</button></div>
+            <p class="muted legend">Pairs on the diagonal, suited hands (s) above it, offsuit (o) below. Drag to paint.</p>
+          </div>
+        </div>
+        <div class="card" id="charts-card">
+          <div class="row spread"><h2>Preflop charts</h2><select id="seat" aria-label="Seat"></select></div>
+          <p class="muted" id="seat-note"></p>
+          <div id="seat-grid" class="hgrid small" role="img" aria-label="Opening hands for this seat"></div>
+          <div class="row"><button id="seat-use" title="Use this chart as the opponents' range">Use as opponent range</button><span class="muted" id="seat-info"></span></div>
+          <p class="muted fine">A simple reference: the strongest hands for each seat at a 6-player table, ranked by all-in equity against a random hand. Not solver output.</p>
+        </div>
+      </section>
+      <section class="right" aria-label="Results and advice">
+        <div id="pk-status" class="status" role="status" aria-live="polite">Pick your two cards to start.</div>
+        <div class="card" id="equity-card">
+          <div class="row spread"><h2>Equity</h2><span id="eq-method" class="muted"></span></div>
+          <div class="eq-big"><span id="eq-pct" class="mono">–</span><span id="eq-hand" class="muted"></span></div>
+          <div class="eqbar" aria-hidden="true"><i id="eq-win"></i><i id="eq-tie"></i></div>
+          <div class="row spread eq-legend"><span><b class="sw win"></b> Win <span id="eq-w" class="mono">–</span></span><span><b class="sw tie"></b> Tie <span id="eq-t" class="mono">–</span></span><span><b class="sw lose"></b> Lose <span id="eq-l" class="mono">–</span></span></div>
+          <div class="progress" aria-hidden="true"><div id="eq-progress"></div></div>
+          <details id="eq-cats"><summary>What you end up with</summary><div id="eq-cat-list" class="cats"></div></details>
+        </div>
+        <div class="card" id="outs-card">
+          <div class="row spread"><h2>Outs</h2><span id="outs-total" class="muted"></span></div>
+          <div id="outs-body" class="outs-body"></div>
+        </div>
+        <div class="card" id="decide-card">
+          <div class="row spread"><h2>Fold, call or raise?</h2><span class="badge" title="A simplified model, not a full game-theory solver">Simple model</span></div>
+          <div class="inputs">
+            <label class="field">Pot <small>(with their bet)</small><input id="d-pot" type="number" min="0" step="any" value="100" /></label>
+            <label class="field">To call<input id="d-call" type="number" min="0" step="any" value="50" /></label>
+            <label class="field">Raise to<input id="d-raise" type="number" min="0" step="any" value="150" /></label>
+            <label class="field">Later winnings <small>(implied)</small><input id="d-implied" type="number" min="0" step="any" value="0" /></label>
+            <label class="field wide">They fold to a raise <output id="d-fold-out">30%</output><input id="d-fold" type="range" min="0" max="100" value="30" /></label>
+          </div>
+          <table class="ev-table" id="ev-table" aria-label="Expected value of each choice"></table>
+          <p id="d-why" class="why"></p>
+          <p class="muted fine">EV in chips, from now on. Assumes a call ends the betting and a raise is folded to or called, never re-raised. Real hands have more streets and choices: use it to see how the pieces fit, not as a solver.</p>
+        </div>
+        <div class="card" id="theory-card">
+          <div class="row spread"><h2>Game theory</h2></div>
+          <div class="seg" role="tablist" aria-label="Topics" id="theory-tabs"></div>
+          <div id="theory-body" class="theory-body"></div>
+        </div>
+      </section>
+    </main>
+
+    <main id="blackjack" class="page hidden" role="tabpanel" aria-labelledby="tab-blackjack">
+      <section class="left" aria-label="Rules, hand and chart">
+        <div class="card" id="rules-card">
+          <div class="row spread"><h2>Table rules</h2><span id="edge" class="edge mono" title="House edge with perfect basic strategy">–</span></div>
+          <div class="inputs rules">
+            <label class="field">Decks<select id="r-decks"><option>1</option><option>2</option><option>4</option><option selected>6</option><option>8</option></select></label>
+            <label class="field">Soft 17<select id="r-h17"><option value="s17">Dealer stands</option><option value="h17">Dealer hits</option></select></label>
+            <label class="field">Blackjack pays<select id="r-bj"><option value="1.5">3 to 2</option><option value="1.2">6 to 5</option><option value="1">1 to 1</option></select></label>
+            <label class="check"><input type="checkbox" id="r-das" checked /> Double after split</label>
+            <label class="check"><input type="checkbox" id="r-sur" checked /> Late surrender</label>
+            <label class="check"><input type="checkbox" id="r-peek" checked /> Dealer peeks for blackjack</label>
+          </div>
+          <p class="muted fine" id="edge-note">House edge: how much of each bet the casino keeps on average when you play perfect basic strategy.</p>
+        </div>
+        <div class="card" id="hand-card">
+          <div class="row spread"><h2>Best play</h2><span id="hand-total" class="muted"></span></div>
+          <div class="bj-pick">
+            <div><span class="slot-label">Your cards</span><div class="rank-row" id="pick-p1" role="radiogroup" aria-label="Your first card"></div><div class="rank-row" id="pick-p2" role="radiogroup" aria-label="Your second card"></div></div>
+            <div><span class="slot-label">Dealer shows</span><div class="rank-row" id="pick-up" role="radiogroup" aria-label="Dealer upcard"></div></div>
+          </div>
+          <div class="bj-show" id="bj-show"></div>
+          <table class="ev-table" id="bj-ev" aria-label="Expected value of each choice"></table>
+          <p id="bj-why" class="why"></p>
+        </div>
+        <div class="card" id="chart-card">
+          <div class="row spread"><h2>Strategy chart</h2><span class="muted" id="chart-rules"></span></div>
+          <div id="bj-chart" class="bj-chart"></div>
+          <div class="legend-row" id="chart-legend"></div>
+        </div>
+      </section>
+      <section class="right" aria-label="Trainer and counting">
+        <div id="bj-status" class="status" role="status" aria-live="polite">Pick a hand, or press Deal to practise.</div>
+        <div class="card" id="trainer-card">
+          <div class="row spread"><h2>Trainer</h2><span id="tr-stats" class="muted mono"></span></div>
+          <div class="table-felt">
+            <div class="felt-row"><span class="slot-label">Dealer</span><div id="tr-dealer" class="hand"></div></div>
+            <div class="felt-row"><span class="slot-label">You</span><div id="tr-player" class="hand"></div></div>
+          </div>
+          <div class="row actions" id="tr-actions">
+            <button data-a="hit">Hit</button><button data-a="stand">Stand</button><button data-a="double">Double</button><button data-a="split">Split</button><button data-a="surrender">Surrender</button>
+          </div>
+          <div id="tr-feedback" class="tr-feedback" aria-live="polite"></div>
+          <div class="row"><button id="tr-deal" class="go">Deal</button><button id="tr-reset" class="link">Reset stats</button></div>
+        </div>
+        <div class="card" id="count-card">
+          <div class="row spread"><h2>Card counting</h2><label class="check"><input type="checkbox" id="count-on" /> Hi-Lo</label></div>
+          <div id="count-body">
+            <div class="count-stats">
+              <div><small>Running</small><b id="c-run" class="mono">0</b></div>
+              <div><small>True</small><b id="c-true" class="mono">0</b></div>
+              <div><small>Decks left</small><b id="c-decks" class="mono">6</b></div>
+              <div><small>Your edge now</small><b id="c-edge" class="mono">–</b></div>
+            </div>
+            <label class="check"><input type="checkbox" id="count-show" checked /> Show the count (turn off to practise keeping it yourself)</label>
+            <details id="i18"><summary>The Illustrious 18</summary><table class="i18" id="i18-table"></table></details>
+          </div>
+          <p class="muted fine" id="count-help">Hi-Lo: 2 to 6 count +1, 7 to 9 count 0, tens and aces −1. True count = running count ÷ decks left. Each +1 moves about 0.5% of edge to you (a rule of thumb).</p>
+        </div>
+        <div class="card" id="bj-theory">
+          <h2>Why it works</h2>
+          <p>Every blackjack choice has an exact expected value (EV): what it wins or loses on average per unit bet. The app computes it from the cards left in the shoe, card by card for the dealer. Basic strategy is just the choice with the highest EV.</p>
+          <p>The house edge comes from one rule: if you bust, you lose even if the dealer busts later. Good play cuts the edge to under half a percent with good rules. Counting finds the moments when the leftover cards favour you.</p>
+        </div>
+      </section>
+    </main>
+
+    <dialog id="settings-dialog" aria-labelledby="settings-title">
+      <h2 id="settings-title">Settings</h2>
+      <h3>Appearance</h3>
+      <div id="theme-skins" class="skin-grid" role="radiogroup" aria-label="Theme"></div>
+      <div class="row mode-row"><span id="mode-label">Mode</span>
+        <div class="group" id="theme-modes" role="radiogroup" aria-labelledby="mode-label">
+          <button data-mode="light" role="radio">Light</button><button data-mode="dark" role="radio">Dark</button><button data-mode="system" role="radio">System</button>
+        </div>
+      </div>
+      <p id="theme-mode-note" class="muted"></p>
+      <div id="updates-section">
+      <h3>Updates</h3>
+      <div class="row"><button id="check-update">Check for updates</button><span id="update-msg" class="muted" aria-live="polite"></span></div>
+      </div>
+      <h3>About</h3>
+      <p class="about">Card Solver <span id="version" class="mono"></span>. Poker equity, ranges and pot odds, and exact blackjack strategy with a trainer and card counting, with the game theory explained. Works offline. MIT licence.</p>
+      <h3>Play responsibly</h3>
+      <p class="about muted" id="responsible">This app is for learning and fun. No strategy beats the house over time without counting, and even then the edge is small and swings are large. Only gamble with money you can afford to lose, set limits before you play, and never chase losses. If gambling stops being fun, talk to someone: in the US call or text 1-800-GAMBLER; elsewhere, look for a local gambling helpline.</p>
+      <div class="row"><button id="settings-close" class="primary">Done</button></div>
+    </dialog>
+    <dialog id="help-dialog" aria-labelledby="help-title">
+      <h2 id="help-title">Help and shortcuts</h2>
+      <table class="keys">
+        <tr><td><kbd>1</kbd> / <kbd>2</kbd></td><td>Poker / Blackjack tab</td></tr>
+        <tr><td>Poker: type a card like <kbd>A</kbd> <kbd>h</kbd></td><td>Fill the picked spot (ranks 2–9, T, J, Q, K, A; suits c, d, h, s)</td></tr>
+        <tr><td>Poker: <kbd>Backspace</kbd></td><td>Clear the picked spot</td></tr>
+        <tr><td>Poker: <kbd>R</kbd> / <kbd>N</kbd></td><td>Random cards / next board card</td></tr>
+        <tr><td>Blackjack trainer: <kbd>H</kbd> <kbd>S</kbd> <kbd>D</kbd> <kbd>P</kbd> <kbd>U</kbd></td><td>Hit, stand, double, split, surrender</td></tr>
+        <tr><td>Blackjack trainer: <kbd>Enter</kbd> or <kbd>Space</kbd></td><td>Deal the next hand</td></tr>
+        <tr><td><kbd>?</kbd></td><td>This help</td></tr>
+      </table>
+      <div class="row"><button id="tour">Tutorial…</button><button id="help-appearance">Settings…</button><button id="help-close" class="primary">Close</button></div>
+    </dialog>
+    <dialog id="tutorial-dialog" aria-labelledby="tut-title">
+      <h2 id="tut-title">Tutorial</h2>
+      <p id="tut-summary" class="muted"></p>
+      <h3>Lessons</h3>
+      <p class="muted">Thirteen short lessons: hand rankings, equity, outs, pot odds, EV, ranges, bluffing and MDF, position, then blackjack strategy, house edge and counting. Each one asks a quick question.</p>
+      <div class="row"><button id="tut-lessons" class="primary">Start the lessons</button><button id="tut-restart">Start over</button></div>
+      <h3>App tour</h3>
+      <p class="muted">A tour of every part of the app, with live examples on screen. Your own cards and settings are put back afterwards.</p>
+      <div class="row"><button id="tut-tour" class="primary">Take the app tour</button><button id="tut-tour-restart">From the start</button></div>
+      <div class="row spread"><button id="tut-reset" class="link">Reset tutorial progress</button><button id="tut-close">Close</button></div>
+    </dialog>
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>
