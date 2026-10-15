@@ -4,6 +4,8 @@
 
 **Poker odds and perfect blackjack, with the game theory behind every choice explained in plain words.**
 
+**Live demo: [cards.chafic.me](https://cards.chafic.me)**
+
 Card Solver is one app with two tabs:
 
 - **Poker (Texas Hold'em):** pick your cards and the board and see your equity against random hands or a range you paint. It also shows your outs, pot odds and a fold/call/raise call with the EV of each choice.
@@ -158,7 +160,10 @@ Same system as the rest of the suite: `src/theme/tokens.css` declares every colo
 npm run build      # type-check + production build to dist/
 npm run preview    # serve dist/
 ```
-`dist/` uses relative paths, so it works from any static host or sub-folder. Set `SITE_URL` at build time to make the social-card tags absolute (`og:url`, `og:image`). `wrangler.jsonc` deploys `dist/` to Cloudflare as static assets with no routes, so you choose the domain in the dashboard.
+`dist/` uses relative paths, so it works from any static host or sub-folder. Set `SITE_URL` at build time to make the social-card tags absolute (`og:url`, `og:image`, `twitter:image`). `wrangler.jsonc` deploys `dist/` to Cloudflare as the `card-solver` Worker with static assets and no routes, so the domain is attached in the dashboard. The live demo is built with:
+```ash
+npm ci && SITE_URL=https://cards.chafic.me npm run build   # then: npx wrangler deploy
+```
 
 ### PWA
 Serve `dist/` over https and install from the address bar (or **Add to Home Screen**). `public/sw.js` fetches pages network-first and assets cache-first.
